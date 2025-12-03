@@ -19,7 +19,11 @@ configurations {
         extendsFrom annotationProcessor
     }
 }
-
+sourceSets {
+    test {
+        java.srcDirs = ['src/test/java/junit', 'src/test/java/integration' ]
+    }
+}
 repositories {
     mavenCentral()
 }
