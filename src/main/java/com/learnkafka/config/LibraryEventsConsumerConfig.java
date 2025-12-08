@@ -23,17 +23,17 @@ public class LibraryEventsConsumerConfig {
     public LibraryEventsConsumerConfig(KafkaProperties properties) {
         this.properties = properties;
     }
-    @Bean
-    ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
-        ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
-        ObjectProvider<ConsumerFactory<Object, Object>> kafkaConsumerFactory,
-        ObjectProvider<ContainerCustomizer<Object, Object, ConcurrentMessageListenerContainer<Object, Object>>> kafkaContainerCustomizer) {
-        ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        configurer.configure(factory, kafkaConsumerFactory
-            .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.properties.buildConsumerProperties())));
-
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL);
-        kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
-        return factory;
-    }
+//    @Bean
+//    ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
+//        ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
+//        ObjectProvider<ConsumerFactory<Object, Object>> kafkaConsumerFactory,
+//        ObjectProvider<ContainerCustomizer<Object, Object, ConcurrentMessageListenerContainer<Object, Object>>> kafkaContainerCustomizer) {
+//        ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+//        configurer.configure(factory, kafkaConsumerFactory
+//            .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.properties.buildConsumerProperties())));
+//
+//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+//        kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
+//        return factory;
+//    }
 }
