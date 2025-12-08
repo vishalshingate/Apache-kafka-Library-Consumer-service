@@ -22,12 +22,11 @@ import lombok.ToString;
 @Builder
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookId;
     private String bookName;
     private String bookAuthor;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "libraryEventId")
     @ToString.Exclude
     private LibraryEvent libraryEvent;
