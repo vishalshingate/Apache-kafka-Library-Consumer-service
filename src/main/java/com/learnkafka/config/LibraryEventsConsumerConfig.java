@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 
 @Configuration
-// for older version of kafka @EnableKafka
+//@EnableKafka for older version of kafka
 public class LibraryEventsConsumerConfig {
+
 }
