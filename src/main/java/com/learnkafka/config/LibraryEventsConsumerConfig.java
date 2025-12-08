@@ -23,17 +23,20 @@ public class LibraryEventsConsumerConfig {
     public LibraryEventsConsumerConfig(KafkaProperties properties) {
         this.properties = properties;
     }
-//    @Bean
-//    ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
-//        ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
-//        ObjectProvider<ConsumerFactory<Object, Object>> kafkaConsumerFactory,
-//        ObjectProvider<ContainerCustomizer<Object, Object, ConcurrentMessageListenerContainer<Object, Object>>> kafkaContainerCustomizer) {
-//        ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//        configurer.configure(factory, kafkaConsumerFactory
-//            .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.properties.buildConsumerProperties())));
-//
-//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
-//        kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
-//        return factory;
-//    }
+    @Bean
+    ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
+        ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
+        ObjectProvider<ConsumerFactory<Object, Object>> kafkaConsumerFactory,
+        ObjectProvider<ContainerCustomizer<Object, Object, ConcurrentMessageListenerContainer<Object, Object>>> kafkaContainerCustomizer) {
+        ConcurrentKafkaListenerContainerFactory<Object, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        configurer.configure(factory, kafkaConsumerFactory
+            .getIfAvailable(() -> new DefaultKafkaConsumerFactory<>(this.properties.buildConsumerProperties())));
+
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
+        factory.setConcurrency(3);
+        // this will create the 3 threads for 3 partitions of 3 listeners, so we will have 3 poll loops parallel pooling the records
+        // this is not necessary in cloud env since we can scale the pods
+        kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
+        return factory;
+    }
 }
