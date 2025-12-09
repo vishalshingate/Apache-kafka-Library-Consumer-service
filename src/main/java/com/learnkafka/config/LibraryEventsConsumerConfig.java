@@ -26,9 +26,32 @@ public class LibraryEventsConsumerConfig {
 
     private final KafkaProperties properties;
 
+
     public LibraryEventsConsumerConfig(KafkaProperties properties) {
         this.properties = properties;
     }
+
+    public DefaultErrorHandler errorHandler() {
+        //custom error handler logic
+        var fixedBackOff= new FixedBackOff(1000L, 2L); // retry every 1 second, max 2 retries
+
+        var errorHandler = new DefaultErrorHandler(fixedBackOff);
+        var exceptionsToIgnoreList= List.of(
+            IllegalArgumentException.class
+        );
+
+        errorHandler
+            .setRetryListeners(((record, ex, deliveryAttempt) -> {
+                log.info("Failed Record in retry Listener , Exception {}, deliveryAttempt {} ", ex.getMessage(), deliveryAttempt);
+            }));
+
+        errorHandler.addNotRetryableExceptions();
+        // similar to the addNotRetryableExceptions we have addRetryableExceptions method also where we can put those exceptions which we want to retry
+        exceptionsToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
+        return errorHandler;
+    }
+
+
     @Bean
     ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
         ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
@@ -47,23 +70,5 @@ public class LibraryEventsConsumerConfig {
         return factory;
     }
 
-    public DefaultErrorHandler errorHandler() {
-        //custom error handler logic
-        var fixedBackOff= new FixedBackOff(1000L, 2L); // retry every 1 second, max 2 retries
 
-        var errorHandler = new DefaultErrorHandler(fixedBackOff);
-        var exceptionsToIgnoreList= List.of(
-            IllegalArgumentException.class
-        );
-
-        errorHandler
-            .setRetryListeners(((record, ex, deliveryAttempt) -> {
-                log.info("Failed Record in retry Listener , Exception {}, deliveryAttempt {} ", ex.getMessage(), deliveryAttempt);
-            }));
-
-        errorHandler.addNotRetryableExceptions();
-
-        exceptionsToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
-        return errorHandler;
-    }
 }
