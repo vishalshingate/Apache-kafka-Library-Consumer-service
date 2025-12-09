@@ -17,6 +17,8 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+import java.util.List;
+
 @Configuration
 @Slf4j
 //@EnableKafka for older version of kafka
@@ -50,10 +52,18 @@ public class LibraryEventsConsumerConfig {
         var fixedBackOff= new FixedBackOff(1000L, 2L); // retry every 1 second, max 2 retries
 
         var errorHandler = new DefaultErrorHandler(fixedBackOff);
+        var exceptionsToIgnoreList= List.of(
+            IllegalArgumentException.class
+        );
+
         errorHandler
             .setRetryListeners(((record, ex, deliveryAttempt) -> {
                 log.info("Failed Record in retry Listener , Exception {}, deliveryAttempt {} ", ex.getMessage(), deliveryAttempt);
             }));
+
+        errorHandler.addNotRetryableExceptions();
+
+        exceptionsToIgnoreList.forEach(errorHandler::addNotRetryableExceptions);
         return errorHandler;
     }
 }
