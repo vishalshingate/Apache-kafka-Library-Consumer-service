@@ -51,7 +51,8 @@ public class LibraryEventsConsumerConfig {
     public DeadLetterPublishingRecoverer publishingRecoverer() {
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
             (r, e) -> {
-                if(e instanceof RecoverableDataAccessException ) {
+                if(e.getCause() instanceof RecoverableDataAccessException ) {
+                    log.info("Recoverable data access exception");
                     return  new TopicPartition(retryTopic, r.partition());
                 } else {
                     return new TopicPartition(dlqTopic, r.partition());
