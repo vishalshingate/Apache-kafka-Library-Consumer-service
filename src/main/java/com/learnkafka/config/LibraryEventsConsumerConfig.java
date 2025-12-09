@@ -1,5 +1,6 @@
 package com.learnkafka.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer;
@@ -13,8 +14,11 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.util.backoff.FixedBackOff;
 
 @Configuration
+@Slf4j
 //@EnableKafka for older version of kafka
 public class LibraryEventsConsumerConfig {
 
@@ -34,9 +38,22 @@ public class LibraryEventsConsumerConfig {
 
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
         factory.setConcurrency(3);
+        factory.setCommonErrorHandler(errorHandler()); // we can use custom error handler here
         // this will create the 3 threads for 3 partitions of 3 listeners, so we will have 3 poll loops parallel pooling the records
         // this is not necessary in cloud env since we can scale the pods
         kafkaContainerCustomizer.ifAvailable(factory::setContainerCustomizer);
         return factory;
+    }
+
+    public DefaultErrorHandler errorHandler() {
+        //custom error handler logic
+        var fixedBackOff= new FixedBackOff(1000L, 2L); // retry every 1 second, max 2 retries
+
+        var errorHandler = new DefaultErrorHandler(fixedBackOff);
+        errorHandler
+            .setRetryListeners(((record, ex, deliveryAttempt) -> {
+                log.info("Failed Record in retry Listener , Exception {}, deliveryAttempt {} ", ex.getMessage(), deliveryAttempt);
+            }));
+        return errorHandler;
     }
 }
