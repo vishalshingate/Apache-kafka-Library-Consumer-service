@@ -22,7 +22,10 @@ public class LibraryEventsConsumer {
      * it will poll multiple records but it will pass one by one to this method
      * @param consumerRecord  this will be the type of ConsumerRecords<?, ?>
      */
-    @KafkaListener(topics = {"library-events"}) // this topic name should match with the producer topic name
+    @KafkaListener(topics = {"library-events"},
+        groupId = "library-events-group"
+    ) // this topic name should match with the producer topic name
+
     public void onMessage(ConsumerRecord<Integer, String> consumerRecord) throws JsonProcessingException {
         log.info("Message received: {}", consumerRecord);
         libraryEventsService.processLibraryEvent(consumerRecord);
