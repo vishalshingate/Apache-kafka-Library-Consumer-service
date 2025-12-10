@@ -71,7 +71,7 @@ public class LibraryEventsConsumerConfig {
          * we can configure the dead letter topic here or Recovery logic here
          */
         var errorHandler = new DefaultErrorHandler(
-            publishingRecoverer(),
+            publishingRecoverer(), // error handler which will publish the failed records to dlq or retry topic
             fixedBackOff
         );
 

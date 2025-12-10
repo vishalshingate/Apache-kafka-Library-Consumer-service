@@ -16,11 +16,17 @@ public class LibraryEventsRetryConsumer {
   public  LibraryEventsRetryConsumer(LibraryEventsService libraryEventsService) {
       this.libraryEventsService = libraryEventsService;
   }
-    @KafkaListener(topics = {"${topics.retry}"},
-    groupId = "rerty-listener-group"
+    @KafkaListener(
+        topics = {"${topics.retry}"},
+        groupId = "rerty-listener-group",
+        autoStartup = "${retry.listener.startup:true}" // if this property is not provided default will be true , (false) this listener will not start automatically
     ) // this topic name should match with the producer topic name
     public void onMessage(ConsumerRecord<Integer, String> consumerRecord) throws JsonProcessingException {
         log.info("Message received received in retry Listener: {}", consumerRecord);
+        consumerRecord.headers()
+                .forEach(header -> {
+                    log.info("key:{}, value:{}", header.key(), new String(header.value()));
+                });
         libraryEventsService.processLibraryEvent(consumerRecord);
     }
 }

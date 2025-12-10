@@ -35,9 +35,11 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.isA;
@@ -51,8 +53,10 @@ import static org.mockito.Mockito.verify;
 @EmbeddedKafka(topics = {"library-events", "library-events-retry", "library-events-dlq"}, partitions = 3)
 @TestPropertySource(properties = {
         "spring.kafka.producer.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "spring.kafka.consumer.bootstrap-servers=${spring.embedded.kafka.brokers}"
-})
+        "spring.kafka.consumer.bootstrap-servers=${spring.embedded.kafka.brokers}",
+        "retry.listener.startup=false" })
+
+//retry.listener.startup=false" this should be same name as defined property name in the listener class
 public class LibraryEventsConsumerIntegrationTest {
 
     @Autowired
@@ -87,9 +91,15 @@ public class LibraryEventsConsumerIntegrationTest {
 
     @BeforeEach
     public void setup() {
-        for (MessageListenerContainer container : endpointRegistry.getListenerContainers()) {
-            ContainerTestUtils.waitForAssignment(container, embeddedKafkaBroker.getPartitionsPerTopic());
-        }
+//        for (MessageListenerContainer container : endpointRegistry.getListenerContainers()) {
+//            ContainerTestUtils.waitForAssignment(container, embeddedKafkaBroker.getPartitionsPerTopic());
+//        }
+
+        var container = endpointRegistry.getAllListenerContainers()
+            .stream().filter(messageListenerContainer ->
+                Objects.equals(messageListenerContainer.getGroupId(), "library-events-group"))
+            .toList().get(0);
+        ContainerTestUtils.waitForAssignment(container, embeddedKafkaBroker.getPartitionsPerTopic());
     }
 
     @AfterEach
