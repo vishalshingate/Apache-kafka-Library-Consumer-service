@@ -53,7 +53,7 @@ public class LibraryEventsService {
             throw new IllegalArgumentException("Library Event Id is missing");
         }
 
-        if(libraryEvent.getLibraryEventId() != null && libraryEvent.getLibraryEventId()== 999){
+        if(libraryEvent.getLibraryEventId() != null && libraryEvent.getLibraryEventId() == 999){
             throw new RecoverableDataAccessException("Library Event Id out of range LibraryEventId: 999");
         }
        Optional<LibraryEvent>libraryEventOptional= libraryEventsRepository.findById(libraryEvent.getLibraryEventId());
