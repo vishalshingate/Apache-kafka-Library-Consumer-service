@@ -59,11 +59,12 @@ public class LibraryEventsConsumerConfigDbRecovery {
     private ConsumerRecordRecoverer consumerRecordRecoverer = (consumerRecord, exception) -> {
        {
             if(exception.getCause() instanceof RecoverableDataAccessException ) {
-                log.info("Recoverable data access exception");
+                log.info("inside recovery data access ");
               // recoverable logic invoke a method to save the record to DB
                 failureService.saveFailedRecord(consumerRecord, exception, RETRY);
             } else {
                // non-recoverable logic
+                log.info("Inside non-recoverable logic ");
                 failureService.saveFailedRecord(consumerRecord, exception, DEAD);
             }
         }};

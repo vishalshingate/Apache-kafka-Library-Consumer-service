@@ -7,6 +7,7 @@ import com.learnkafka.consumer.LibraryEventsConsumer;
 import com.learnkafka.model.Book;
 import com.learnkafka.model.LibraryEvent;
 import com.learnkafka.model.LibraryEventType;
+import com.learnkafka.repository.FailureRecordRepository;
 import com.learnkafka.repository.LibraryEventsRepository;
 import com.learnkafka.service.LibraryEventsService;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -76,6 +77,9 @@ public class LibraryEventsConsumerIntegrationTest {
 
     @Autowired
     LibraryEventsRepository libraryEventsRepository;
+
+    @Autowired
+    FailureRecordRepository failureRecordRepository;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -212,6 +216,29 @@ public class LibraryEventsConsumerIntegrationTest {
         System.out.println("ConsumerRecord is: "+consumerRecords);
         assertEquals(json, consumerRecords.value());
 
+    }
+    @Test
+    void publishUpdateLibraryEvent_null_LibraryEvent_FailureRecord() throws JsonProcessingException, InterruptedException, ExecutionException {
+        String json = "{\n" +
+            "    \"libraryEventId\": null,\n" +
+            "    \"book\": {\n" +
+            "        \"bookId\": 123,\n" +
+            "        \"bookName\": \"Kafka Using Spring Boot\",\n" +
+            "        \"bookAuthor\": \"Dilip\"\n" +
+            "    },\n" +
+            "    \"libraryEventType\": \"UPDATE\"\n" +
+            "}";
+        kafkaTemplate.sendDefault(json).get();
+        // when
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(3, TimeUnit.SECONDS);
+
+        // then
+        verify(libraryEventsConsumerSpy, times(1)).onMessage(isA(ConsumerRecord.class));
+        verify(libraryEventsServiceSpy, times(1)).processLibraryEvent(isA(ConsumerRecord.class));
+        failureRecordRepository.findAll().forEach(failureRecord -> {
+            assertEquals(json, failureRecord.getErrorRecord());
+        });
     }
     @Test
     void publishUpdateLibraryEvent_999_LibraryEvent() throws JsonProcessingException, InterruptedException, ExecutionException {
