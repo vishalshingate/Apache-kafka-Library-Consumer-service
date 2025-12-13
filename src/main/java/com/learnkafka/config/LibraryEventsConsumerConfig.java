@@ -92,7 +92,7 @@ public class LibraryEventsConsumerConfig {
 
 
 
-    @Bean
+    //@Bean
     public ConcurrentKafkaListenerContainerFactory<?, ?> kafkaListenerContainerFactory(
         ConcurrentKafkaListenerContainerFactoryConfigurer configurer,
         ObjectProvider<ConsumerFactory<Object, Object>> kafkaConsumerFactory,

@@ -81,6 +81,7 @@ public class LibraryEventsConsumerConfigDbRecovery {
         var errorHandler = new DefaultErrorHandler(
           //commented following code to simulate DB recovery instead of publishing to retry topic
            // publishingRecoverer(), // error handler which will publish the failed records to dlq or retry topic
+            consumerRecordRecoverer,
             fixedBackOff
         );
 
