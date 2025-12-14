@@ -31,6 +31,8 @@ server:
 topics:
   retry: "library-events-retry"
   dlq: "library-events-dlq"
+schedular:
+  retry-schedular-rate: "10000"
 ---
 # Optional overrides for the "local" profile
 spring:

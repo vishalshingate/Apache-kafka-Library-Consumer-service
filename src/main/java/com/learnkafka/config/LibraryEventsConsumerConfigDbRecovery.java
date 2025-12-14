@@ -36,8 +36,9 @@ public class LibraryEventsConsumerConfigDbRecovery {
     @Autowired
     private FailureService failureService;
 
-    private static final String RETRY = "RETRY";
-    private static final String DEAD = "DEAD";
+    public static final String RETRY = "RETRY";
+    public static final String DEAD = "DEAD";
+    public static final String SUCCESS = "SUCCESS";
 
     @Value("${topics.retry}")
     private String retryTopic;
