@@ -6,10 +6,10 @@ import com.learnkafka.config.LibraryEventsConsumerConfigDbRecovery;
 import com.learnkafka.model.FailureRecord;
 import com.learnkafka.repository.FailureRecordRepository;
 import com.learnkafka.service.LibraryEventsService;
-import lombok.Builder;
+
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
